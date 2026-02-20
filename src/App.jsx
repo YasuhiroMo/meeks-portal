@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 const COMPANY_PASS = "meeks2025";
 const ADMIN_PASS = "admin2025";
 const PASS_RATE = 80;
+const TEST_Q_COUNT = 30;
+const TEST_PASS_LINE = Math.ceil(TEST_Q_COUNT * 0.8);
 
 /* ===== 共通スタイル ===== */
 const S = {
@@ -109,7 +111,7 @@ const MANUALS = [
 /* ===== Eラーニングコースデータ（全13コース） ===== */
 const COURSES = [
   { id:"delivery_basic", title:"納入基本手順", icon:"🚚", cat:"基本業務", color:"#1B4F72",
-    secs:[{ title:"学習内容", body:"出発前5点確認→現場到着→荷降ろし→退出前5点確認の一連の流れを学びます。" }],
+    secs:[{ title:"出発前〜帰庫までの流れ", body:"出発前5点確認→現場到着→荷降ろし→退出前5点確認の一連の流れを学びます。\n\n【出発前5点確認】\n①アウトリガー格納確認\n②ブーム格納確認\n③製品荷締め確認\n④部材荷締め確認\n⑤不具合箇所の修正\n\n【退出前5点確認】\n①ブーム格納\n②アウトリガー格納\n③ワイヤー乱巻なし\n④フック格納\n⑤PTO解除" }],
     quiz:[
       { q:"出発前5点確認に含まれないものは？", o:["アウトリガー格納","ブーム格納","タイヤ空気圧測定","製品荷締め"], a:2 },
       { q:"8:00指定の場合、何時より前の進入が禁止？", o:["7:00","7:15","7:30","7:45"], a:2 },
@@ -119,7 +121,7 @@ const COURSES = [
     ]
   },
   { id:"accident_response", title:"事故対応", icon:"🚨", cat:"緊急対応", color:"#C0392B",
-    secs:[{ title:"学習内容", body:"事故発生時の3原則と絶対禁止事項、電線切断時の対応を学びます。" }],
+    secs:[{ title:"事故発生時の3原則と禁止事項", body:"【事故発生時の3原則】\n① 安全確保（二次災害の防止）\n② 救護・通報（119番・110番）\n③ 会社連絡（配車担当：090-1213-9803）\n\n【絶対禁止事項】\n・現場からの離脱\n・事故報告の隠蔽\n・示談交渉\n・「私が悪い」等の責任を認める発言\n・SNSへの投稿\n\n【電線切断時】\n車両から絶対に降りない→110番→配車担当→東京電力" }],
     quiz:[
       { q:"事故発生時の3原則の順番は？", o:["通報→安全確保→会社連絡","安全確保→救護通報→会社連絡","会社連絡→安全確保→通報","救護→会社連絡→安全確保"], a:1 },
       { q:"事故時に絶対してはいけないことは？", o:["写真撮影","警察への連絡","示談交渉","救護活動"], a:2 },
@@ -129,7 +131,7 @@ const COURSES = [
     ]
   },
   { id:"crane_safety", title:"クレーン操作安全", icon:"🏗️", cat:"安全教育", color:"#A04000",
-    secs:[{ title:"学習内容", body:"クレーン操作前の確認事項、操作中の注意点、悪天候時の判断を学びます。" }],
+    secs:[{ title:"操作前確認と操作中の注意", body:"【操作前確認】\n□ 技能講習修了証の携帯\n□ クレーン各部の点検\n□ 過負荷防止装置の確認\n□ アウトリガー最大張り出し・敷板設置\n\n【操作中の注意】\n・吊り荷の下に立入禁止\n・急激な操作禁止\n・移動しながらの操作禁止\n・複数レバー同時操作禁止\n・旋回時は頭上確認\n・風速10m/s以上は作業中止" }],
     quiz:[
       { q:"クレーン作業中止の風速条件は？", o:["5m/s以上","8m/s以上","10m/s以上","15m/s以上"], a:2 },
       { q:"アウトリガーで禁止されていることは？", o:["最大張り出し","敷板使用","片側のみ使用","水平確認"], a:2 },
@@ -139,7 +141,7 @@ const COURSES = [
     ]
   },
   { id:"health_mgmt", title:"健康管理・季節対策", icon:"💪", cat:"健康管理", color:"#2E86C1",
-    secs:[{ title:"学習内容", body:"睡眠・飲酒・食事の管理、熱中症予防、冬季対策を学びます。" }],
+    secs:[{ title:"健康管理と季節別対策", body:"【睡眠】1日7時間以上\n【飲酒】ビール中瓶1本＝分解に約3〜4時間\n【食事】朝食必須。昼食は腹八分目\n\n【熱中症予防】WBGT31以上は原則外作業中止\n1時間にコップ2〜3杯の水分補給\n重度（意識障害）→119番\n\n【冬季】スタッドレスタイヤ12月〜3月必須\n【花粉症】主治医に運転業務を伝えて処方" }],
     quiz:[
       { q:"ビール中瓶1本の分解に必要な時間は？", o:["1〜2時間","3〜4時間","5〜6時間","7〜8時間"], a:1 },
       { q:"熱中症で意識障害がある場合の対応は？", o:["水分補給","涼しい場所で休憩","119番通報","自力で帰社"], a:2 },
@@ -149,7 +151,7 @@ const COURSES = [
     ]
   },
   { id:"driving_safety", title:"走行中の安全", icon:"🚛", cat:"安全運転", color:"#6C3483",
-    secs:[{ title:"学習内容", body:"速度制限、改善基準告示、緊急時の対応を学びます。" }],
+    secs:[{ title:"速度制限と改善基準告示", body:"【速度制限】住宅街20km/h以下\n【ながら運転】厳禁\n【あおり運転】安全な場所に移動→110番\n\n【改善基準告示】\n・1日の拘束時間：原則13時間以内（上限16時間）\n・1か月：原則284時間\n・連続運転：4時間以内に30分以上休憩\n・勤務間休息：継続11時間以上" }],
     quiz:[
       { q:"住宅街での速度制限は？", o:["30km/h以下","20km/h以下","40km/h以下","10km/h以下"], a:1 },
       { q:"1日の拘束時間の原則上限は？", o:["10時間","11時間","13時間","16時間"], a:2 },
@@ -159,7 +161,7 @@ const COURSES = [
     ]
   },
   { id:"kyt_training", title:"危険予知トレーニング", icon:"⚠️", cat:"KYT", color:"#D4AC0D",
-    secs:[{ title:"学習内容", body:"KYT 4ラウンド法を使った危険予知の実践方法を学びます。" }],
+    secs:[{ title:"KYT 4ラウンド法", body:"第1R：危険の洗い出し（どんな危険があるか）\n第2R：危険の絞り込み（最も重要な危険は）\n第3R：対策の立案（あなたならどうする）\n第4R：行動目標の設定（指差し呼称項目を決定）\n\n【シナリオ例】\n・住宅街でのバック走行→降車して後方確認\n・雨天時の荷降ろし→敷板を多めに使用\n・電線下のクレーン作業→安全距離を確保" }],
     quiz:[
       { q:"KYT第1ラウンドの目的は？", o:["対策の立案","危険の洗い出し","行動目標の設定","危険の絞り込み"], a:1 },
       { q:"KYT第4ラウンドで行うことは？", o:["危険の洗い出し","対策の立案","行動目標・指差し呼称","危険の絞り込み"], a:2 },
@@ -169,7 +171,7 @@ const COURSES = [
     ]
   },
   { id:"loading_method", title:"積込・荷締め", icon:"📦", cat:"基本業務", color:"#1A5276",
-    secs:[{ title:"学習内容", body:"正しい積込方法、荷締め・養生の手順を学びます。" }],
+    secs:[{ title:"積込と荷締めの基本", body:"・配送順番を考慮した積込\n・重心を低く偏りなく積載\n・ラッシングベルト最低2本以上\n・製品間に角当てを入れる\n・後部はみ出し部に赤い布" }],
     quiz:[
       { q:"ラッシングベルトは最低何本必要？", o:["1本","2本","3本","4本"], a:1 },
       { q:"積込で考慮すべき順番は？", o:["重い順","軽い順","配送順","サイズ順"], a:2 },
@@ -177,7 +179,7 @@ const COURSES = [
     ]
   },
   { id:"site_rules", title:"現場マナー・ルール", icon:"🏠", cat:"マナー", color:"#117A65",
-    secs:[{ title:"学習内容", body:"現場での禁止事項、遣り方・水糸の取り扱いを学びます。" }],
+    secs:[{ title:"現場でのルール", body:"・遣り方・水糸・饅頭を絶対に破損しない\n・地縄の内側に製品を置かない\n・防湿シートを汚さない\n・近隣住宅の塀・車両・植栽に注意\n・現場を汚した場合は必ず清掃\n・現場・現場付近は禁煙" }],
     quiz:[
       { q:"遣り方・水糸を破損した場合は？", o:["黙って直す","無視する","すぐに報告","帰社後に報告"], a:2 },
       { q:"地縄の内側に製品を置いてよいか？", o:["よい","禁止","監督の許可があればOK","小さいものはOK"], a:1 },
@@ -185,7 +187,7 @@ const COURSES = [
     ]
   },
   { id:"law12_edu", title:"法定12項目教育", icon:"📚", cat:"法令", color:"#34495E",
-    secs:[{ title:"学習内容", body:"国土交通省告示に基づく法定12項目の教育内容を学びます。" }],
+    secs:[{ title:"法定12項目の概要", body:"【第1項】安全最優先の心構え\n【第2項】日常点検・アルコールチェック（0.00mg/L）\n【第3項】内輪差・オーバーハング・死角\n【第4項】正しい積載方法\n【第5項】過積載の危険性\n【第7項】高さ・重量制限の確認\n【第10項】「だろう」→「かもしれない」運転\n【第12項】バックカメラは補助、目視確認必須" }],
     quiz:[
       { q:"アルコールチェックの基準値は？", o:["0.15mg/L以下","0.00mg/L","0.25mg/L以下","0.10mg/L以下"], a:1 },
       { q:"過積載のリスクに含まれないものは？", o:["制動距離増大","横転リスク","燃費向上","行政処分"], a:2 },
@@ -193,28 +195,28 @@ const COURSES = [
     ]
   },
   { id:"checklist_edu", title:"チェックリストの使い方", icon:"✅", cat:"基本業務", color:"#1E8449",
-    secs:[{ title:"学習内容", body:"各種チェックリストの正しい活用方法を学びます。" }],
+    secs:[{ title:"チェックリスト活用法", body:"チェックリストは出発前・現場到着時・退出前の各段階で使用します。\n上から順番に1つずつ確認し、飛ばし読みや記憶に頼ることは避けてください。" }],
     quiz:[
       { q:"チェックリストを使うタイミングは？", o:["出発前のみ","作業の各段階で","帰社後のみ","週1回"], a:1 },
       { q:"チェック漏れを防ぐ方法は？", o:["暗記する","上から順に確認","飛ばし読み","まとめてチェック"], a:1 }
     ]
   },
   { id:"driver_check", title:"教育チェック表", icon:"📝", cat:"教育", color:"#6C3483",
-    secs:[{ title:"学習内容", body:"ドライバー教育チェック表の各項目と実施方法を学びます。" }],
+    secs:[{ title:"教育チェック表の使い方", body:"教育完了後は受講者の署名と日付が必要です。\nアウトリガーは最大張り出し必須、片側のみは禁止です。" }],
     quiz:[
       { q:"教育完了後に必要なことは？", o:["口頭報告","受講者署名と日付","写真撮影","テスト受験"], a:1 },
       { q:"アウトリガーで禁止なのは？", o:["最大張り出し","敷板使用","片側のみ使用","水平確認"], a:2 }
     ]
   },
   { id:"customer_service", title:"顧客満足・マナー", icon:"🤝", cat:"顧客満足", color:"#B7950B",
-    secs:[{ title:"学習内容", body:"お客様対応のマナーと顧客満足向上のポイントを学びます。" }],
+    secs:[{ title:"お客様対応の基本", body:"・時間指定厳守（早すぎてもNG）\n・清潔な作業服\n・積極的な挨拶と丁寧な言葉遣い\n・現場・現場付近は禁煙\n・遅れる場合は事務所へ早めに報告" }],
     quiz:[
       { q:"時間指定に対して正しい行動は？", o:["早すぎてもOK","指定時間ちょうどに到着","指定時間厳守（早すぎもNG）","多少遅れても問題なし"], a:2 },
       { q:"現場・現場付近でタバコは？", o:["OK","禁煙","休憩中はOK","人がいなければOK"], a:1 }
     ]
   },
   { id:"mistake_prevent", title:"ミス防止", icon:"🔍", cat:"安全教育", color:"#7D3C98",
-    secs:[{ title:"学習内容", body:"よくあるミスの事例と具体的な防止策を学びます。" }],
+    secs:[{ title:"よくあるミスと防止策", body:"【誤配送】住所・物件名を配車表と照合\n【数量ミス】声に出して1つずつ数える\n【明細書置き忘れ】退出前に書類の仕分けを確認\n【ブーム格納忘れ】出発前5点確認を毎回実施\n【敷板回収忘れ】退出前チェックリストに含める" }],
     quiz:[
       { q:"誤配送を防ぐ方法は？", o:["急いで配送","到着時に住所・物件名を配車表と照合","ナビに任せる","電話確認不要"], a:1 },
       { q:"数量ミスを防ぐ方法は？", o:["目視で確認","声に出して1つずつ数える","感覚で判断","写真で確認"], a:1 },
@@ -222,6 +224,9 @@ const COURSES = [
     ]
   }
 ];
+
+/* 全コースの問題プール数 */
+const TOTAL_POOL = COURSES.reduce((n, c) => n + c.quiz.length, 0);
 
 /* ===== 回答集（管理者用） ===== */
 const ANSWER_SHEETS = [
@@ -321,7 +326,7 @@ function Header({ tab, setTab, user, onLogout }) {
 function Home({ setTab, user }) {
   const cards = [
     { icon:"📄", title:"手順書を確認する", desc:"納入手順・事故対応・チェックリスト等を閲覧", tab:"manual", color:"#1B4F72" },
-    { icon:"🎓", title:"Eラーニングを受講する", desc:`全${COURSES.length}コースの安全教育・確認テスト`, tab:"elearning", color:"#1E8449" },
+    { icon:"🎓", title:"Eラーニングを受講する", desc:`全${COURSES.length}コースの学習・ランダム30問テスト`, tab:"elearning", color:"#1E8449" },
     { icon:"🤖", title:"AIに質問する", desc:"手順書・教育資料の内容をQ&Aで即確認", tab:"chat", color:"#6C3483" }
   ];
   return (
@@ -388,91 +393,297 @@ function ManualViewer() {
   );
 }
 
-/* ===== ELearning ===== */
-function ELearning({ user }) {
-  const [course, setCourse] = useState(null);
-  const [ans, setAns] = useState({});
-  const [sub, setSub] = useState(false);
-  const [score, setScore] = useState(null);
-  const [progress, setProgress] = useState({});
-
-  useEffect(() => { (async () => { try { const r = await stor.get(`prog:${user.empId}`); if (r?.value) setProgress(JSON.parse(r.value)); } catch {} })(); }, [user.empId]);
-
-  const submit = async () => {
-    const correct = course.quiz.reduce((n, q, i) => n + (ans[i] === q.a ? 1 : 0), 0);
-    const pct = Math.round((correct / course.quiz.length) * 100);
-    const passed = pct >= PASS_RATE;
-    setScore({ correct, total: course.quiz.length, pct, passed });
-    setSub(true);
-    const rec = { empId: user.empId, name: user.name, courseId: course.id, courseName: course.title, score: correct, totalQ: course.quiz.length, pct, passed, date: new Date().toISOString() };
-    await stor.set(`res:${user.empId}:${course.id}:${Date.now()}`, JSON.stringify(rec));
-    const np = { ...progress, [course.id]: { completed: passed, last: rec.date, pct } };
-    setProgress(np);
-    await stor.set(`prog:${user.empId}`, JSON.stringify(np));
-  };
-
-  const reset = () => { setCourse(null); setAns({}); setSub(false); setScore(null); };
-
-  if (!course) return (
-    <div style={{ maxWidth:1000, margin:"0 auto", padding:"24px 20px" }}>
-      <h2 style={{ fontSize:18, fontWeight:700, color:"#1a2d4a", marginBottom:16 }}>🎓 Eラーニング</h2>
-      <p style={{ fontSize:12, color:"#888", marginBottom:20 }}>合格ライン：{PASS_RATE}%以上 ／ 全{COURSES.length}コース</p>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:12 }}>
-        {COURSES.map(c => {
-          const p = progress[c.id];
-          return (
-            <div key={c.id} onClick={() => setCourse(c)} style={{ ...S.card, padding:"16px", cursor:"pointer", position:"relative" }}>
-              <div style={{ position:"absolute", top:0, left:0, right:0, height:3, background:c.color }} />
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"start" }}>
-                <span style={{ fontSize:22 }}>{c.icon}</span>
-                {p?.completed && <span style={{ background:"#27AE60", color:"#fff", fontSize:10, padding:"2px 8px", borderRadius:10, fontWeight:600 }}>修了</span>}
-              </div>
-              <div style={{ fontSize:12, fontWeight:700, color:"#1a2d4a", marginTop:6 }}>{c.title}</div>
-              <div style={{ fontSize:10, color:"#888", marginTop:3 }}>{c.cat} • {c.quiz.length}問</div>
-              {p?.last && <div style={{ fontSize:10, color:"#aaa", marginTop:4 }}>最終: {fmt(p.last)}</div>}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-
+/* ===== CourseView（学習専用） ===== */
+function CourseView({ course, onBack }) {
+  const c = course;
+  const [sec, setSec] = useState(0);
   return (
     <div style={{ maxWidth:800, margin:"0 auto", padding:"24px 20px" }}>
-      <button onClick={reset} style={{ background:"none", border:"none", color:"#2E86C1", cursor:"pointer", fontSize:13, marginBottom:12 }}>← コース一覧に戻る</button>
+      <button onClick={onBack} style={{ background:"none", border:"none", color:"#1B4F72", cursor:"pointer", fontSize:13, marginBottom:16 }}>← コース一覧に戻る</button>
       <div style={S.card}>
-        <div style={{ padding:"20px 24px", borderBottom:"1px solid #e0e0e0" }}>
-          <span style={{ fontSize:28 }}>{course.icon}</span>
-          <h2 style={{ fontSize:17, fontWeight:700, color:"#1a2d4a", marginTop:6 }}>{course.title}</h2>
-          <p style={{ fontSize:12, color:"#888", marginTop:4 }}>合格ライン: {PASS_RATE}% ／ {course.quiz.length}問</p>
+        <div style={{ background:`linear-gradient(135deg,${c.color},${c.color}cc)`, color:"#fff", padding:"20px 24px" }}>
+          <span style={{ fontSize:28 }}>{c.icon}</span>
+          <h2 style={{ fontSize:17, fontWeight:700, marginTop:4 }}>{c.title}</h2>
+          <div style={{ fontSize:11, opacity:0.8 }}>{c.cat} • 全{c.secs.length}セクション</div>
         </div>
-        {sub && score && (
-          <div style={{ padding:"24px", textAlign:"center", background: score.passed ? "#d4edda" : "#f8d7da" }}>
-            <div style={{ fontSize:36 }}>{score.passed ? "🎉" : "📝"}</div>
-            <div style={{ fontSize:18, fontWeight:700, color: score.passed ? "#155724" : "#721c24", marginTop:8 }}>{score.passed ? "合格！" : "不合格"}</div>
-            <div style={{ fontSize:14, marginTop:6, color:"#333" }}>{score.correct}/{score.total} 正解（{score.pct}%）</div>
-            {!score.passed && <button onClick={() => { setAns({}); setSub(false); setScore(null); }} style={{ ...S.btn("#E67E22"), marginTop:12 }}>再受験する</button>}
-          </div>
-        )}
         <div style={{ padding:"24px" }}>
-          {course.quiz.map((q, qi) => (
-            <div key={qi} style={{ marginBottom:24, padding:"16px", background: sub ? (ans[qi] === q.a ? "#d4edda" : "#f8d7da") : "#f8f9fa", borderRadius:12 }}>
-              <div style={{ fontSize:13, fontWeight:700, color:"#1a2d4a", marginBottom:10 }}>Q{qi+1}. {q.q}</div>
-              {q.o.map((opt, oi) => (
-                <div key={oi} onClick={() => !sub && setAns({...ans, [qi]:oi})} style={{ padding:"10px 14px", marginBottom:4, borderRadius:8, border: `1.5px solid ${ans[qi]===oi ? course.color : "#e0e0e0"}`, background: sub ? (oi===q.a ? "#c3e6cb" : ans[qi]===oi ? "#f5c6cb" : "#fff") : (ans[qi]===oi ? `${course.color}15` : "#fff"), cursor: sub ? "default" : "pointer", fontSize:13, display:"flex", alignItems:"center", gap:8 }}>
-                  <span style={{ fontSize:10 }}>{ans[qi]===oi ? "●" : "○"}</span>{opt}
-                </div>
-              ))}
-            </div>
-          ))}
-          {!sub && <button onClick={submit} disabled={Object.keys(ans).length !== course.quiz.length} style={{ ...S.btn(Object.keys(ans).length === course.quiz.length ? course.color : "#ccc"), width:"100%", padding:"14px" }}>テストを提出する</button>}
+          <div style={{ display:"flex", gap:4, marginBottom:20 }}>
+            {c.secs.map((_, i) => (
+              <div key={i} onClick={() => setSec(i)} style={{ flex:1, height:4, borderRadius:2, background: i <= sec ? c.color : "#e0e0e0", cursor:"pointer", transition:"all .2s" }} />
+            ))}
+          </div>
+          <div style={{ fontSize:11, color:c.color, fontWeight:700, marginBottom:4 }}>セクション {sec+1}/{c.secs.length}</div>
+          <h3 style={{ fontSize:15, fontWeight:700, color:"#1a2d4a", marginBottom:14 }}>{c.secs[sec].title}</h3>
+          <div style={{ fontSize:13, lineHeight:2, color:"#333", whiteSpace:"pre-line" }}>{c.secs[sec].body}</div>
+          <div style={{ display:"flex", justifyContent:"space-between", marginTop:20 }}>
+            <button onClick={() => setSec(Math.max(0, sec-1))} disabled={sec===0}
+              style={{ padding:"8px 20px", borderRadius:8, border:"1px solid #ccc", background:"#fff", cursor: sec===0?"default":"pointer", opacity: sec===0?0.4:1, fontSize:12 }}>← 前へ</button>
+            {sec < c.secs.length - 1
+              ? <button onClick={() => setSec(sec+1)} style={{ padding:"8px 20px", borderRadius:8, border:"none", background:c.color, color:"#fff", cursor:"pointer", fontSize:12, fontWeight:600 }}>次へ →</button>
+              : <button onClick={onBack} style={{ padding:"8px 20px", borderRadius:8, border:"none", background:"#27AE60", color:"#fff", cursor:"pointer", fontSize:12, fontWeight:700 }}>✓ 学習完了 → 一覧に戻る</button>
+            }
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-/* ===== Chatbot（★ /api/chat 経由） ===== */
+/* ===== RandomTest（ランダム30問テスト） ===== */
+function RandomTest({ user, onBack, onDone }) {
+  const [questions, setQuestions] = useState([]);
+  const [ans, setAns] = useState({});
+  const [sub, setSub] = useState(null);
+  const topRef = useRef(null);
+
+  useEffect(() => {
+    const pool = COURSES.flatMap(c =>
+      c.quiz.map(q => ({ ...q, courseId:c.id, courseIcon:c.icon, courseTitle:c.title, courseColor:c.color }))
+    );
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    setQuestions(pool.slice(0, TEST_Q_COUNT));
+  }, []);
+
+  const submit = () => {
+    let sc = 0;
+    questions.forEach((q, i) => { if (ans[i] === q.a) sc++; });
+    const pa = sc >= TEST_PASS_LINE;
+    setSub({ sc, pa });
+    if (onDone) onDone(sc, pa);
+    topRef.current?.scrollIntoView({ behavior:"smooth" });
+  };
+
+  const retry = () => {
+    setAns({}); setSub(null); setQuestions([]);
+    setTimeout(() => {
+      const pool = COURSES.flatMap(c =>
+        c.quiz.map(q => ({ ...q, courseId:c.id, courseIcon:c.icon, courseTitle:c.title, courseColor:c.color }))
+      );
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      setQuestions(pool.slice(0, TEST_Q_COUNT));
+    }, 100);
+  };
+
+  if (questions.length === 0) return <div style={{ textAlign:"center", padding:60, color:"#666" }}>問題を準備中...</div>;
+
+  const allOK = Object.keys(ans).length === questions.length;
+
+  return (
+    <div ref={topRef} style={{ maxWidth:800, margin:"0 auto", padding:"24px 20px" }}>
+      {!sub && <button onClick={onBack} style={{ background:"none", border:"none", color:"#1B4F72", cursor:"pointer", fontSize:13, marginBottom:16 }}>← テストを中断して戻る</button>}
+      <div style={S.card}>
+        <div style={{ background:"linear-gradient(135deg,#1B4F72,#2E86C1)", color:"#fff", padding:"20px 24px" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+            <span style={{ fontSize:28 }}>📝</span>
+            <div>
+              <h2 style={{ fontSize:17, fontWeight:700, margin:0 }}>総合確認テスト</h2>
+              <div style={{ fontSize:11, opacity:0.8, marginTop:2 }}>全コースからランダム{TEST_Q_COUNT}問 • 合格: {TEST_PASS_LINE}問以上（{PASS_RATE}%）</div>
+            </div>
+          </div>
+          <div style={{ fontSize:12, marginTop:8, opacity:0.7 }}>受験者: {user.empId} {user.name}</div>
+        </div>
+
+        <div style={{ padding:"24px" }}>
+          {/* 結果 */}
+          {sub && (
+            <div style={{ background: sub.pa ? "#d4edda" : "#f8d7da", borderRadius:12, padding:"20px 24px", marginBottom:24, border:"2px solid " + (sub.pa ? "#28a745" : "#dc3545"), textAlign:"center" }}>
+              <div style={{ fontSize:36, marginBottom:6 }}>{sub.pa ? "🎉" : "📚"}</div>
+              <div style={{ fontSize:18, fontWeight:700, color: sub.pa ? "#155724" : "#721c24" }}>{sub.pa ? "合格！おめでとうございます！" : "不合格 — 再学習してください"}</div>
+              <div style={{ fontSize:14, marginTop:6, color:"#555" }}>{sub.sc}/{TEST_Q_COUNT}問正解（{Math.round(sub.sc / TEST_Q_COUNT * 100)}%）</div>
+              <div style={{ display:"flex", gap:10, justifyContent:"center", marginTop:16 }}>
+                <button onClick={onBack} style={{ padding:"10px 24px", borderRadius:8, border:"1px solid #ccc", background:"#fff", cursor:"pointer", fontSize:13, fontWeight:600 }}>一覧に戻る</button>
+                <button onClick={retry} style={{ padding:"10px 24px", borderRadius:8, border:"none", background:"#2E86C1", color:"#fff", cursor:"pointer", fontSize:13, fontWeight:700 }}>🔄 新しい問題で再挑戦</button>
+              </div>
+            </div>
+          )}
+
+          {/* 進捗バー */}
+          {!sub && (
+            <div style={{ background:"#f0f2f5", borderRadius:8, padding:"10px 14px", marginBottom:20, display:"flex", alignItems:"center", gap:12 }}>
+              <div style={{ fontSize:12, color:"#666", whiteSpace:"nowrap" }}>回答状況</div>
+              <div style={{ flex:1, height:6, background:"#ddd", borderRadius:3, overflow:"hidden" }}>
+                <div style={{ width:(Object.keys(ans).length / TEST_Q_COUNT * 100)+"%", height:"100%", background: allOK ? "#27AE60" : "#2E86C1", borderRadius:3, transition:"width .3s" }} />
+              </div>
+              <div style={{ fontSize:12, fontWeight:600, color: allOK ? "#27AE60" : "#666" }}>{Object.keys(ans).length}/{TEST_Q_COUNT}</div>
+            </div>
+          )}
+
+          {/* 問題 */}
+          {questions.map((q, qi) => (
+            <div key={qi} style={{ background:"#f9f9f9", borderRadius:12, padding:"16px", marginBottom:12,
+              border: sub ? (ans[qi]===q.a ? "2px solid #27AE60" : (ans[qi]!==undefined ? "2px solid #E74C3C" : "1px solid #e0e0e0")) : "1px solid #e0e0e0" }}>
+              <div style={{ fontSize:10, color:q.courseColor, fontWeight:600, marginBottom:6 }}>{q.courseIcon} {q.courseTitle}</div>
+              <div style={{ fontSize:13, fontWeight:700, color:"#1a2d4a", marginBottom:10 }}>Q{qi+1}. {q.q}</div>
+              {q.o.map((opt, oi) => {
+                const sel = ans[qi]===oi, isOk = sub&&oi===q.a, isNg = sub&&sel&&oi!==q.a;
+                return (
+                  <div key={oi} onClick={() => !sub && setAns(p => ({...p,[qi]:oi}))}
+                    style={{ padding:"9px 12px", borderRadius:8, marginBottom:6, fontSize:13, cursor: sub?"default":"pointer",
+                      border:"1.5px solid " + (isOk?"#27AE60":isNg?"#E74C3C":sel?"#2E86C1":"#e0e0e0"),
+                      background: isOk?"rgba(39,174,96,0.08)":isNg?"rgba(231,76,60,0.08)":sel?"rgba(46,134,193,0.08)":"#fff",
+                      color:"#333", transition:"all .15s" }}>
+                    <span style={{ marginRight:8, fontWeight:600, color: isOk?"#27AE60":isNg?"#E74C3C":sel?"#2E86C1":"#999" }}>
+                      {isOk?"✓":isNg?"✗":sel?"●":"○"}
+                    </span>{opt}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+
+          {/* 提出ボタン */}
+          {!sub && (
+            <button onClick={submit} disabled={!allOK}
+              style={{ width:"100%", padding:"14px", borderRadius:12, border:"none",
+                background: allOK ? "linear-gradient(135deg,#1B4F72,#2E86C1)" : "#ccc",
+                color:"#fff", fontSize:15, fontWeight:700, cursor: allOK?"pointer":"default", marginTop:8 }}>
+              {allOK ? "テストを提出する" : `あと${TEST_Q_COUNT - Object.keys(ans).length}問未回答`}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===== ELearning（改修版：学習＋ランダム30問テスト） ===== */
+function ELearning({ user }) {
+  const [selC, setSelC] = useState(null);
+  const [showTest, setShowTest] = useState(false);
+  const [prog, setProg] = useState({});
+  const [testHist, setTestHist] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    let c = false;
+    if (!user) { setLoaded(true); return; }
+    (async () => {
+      try { const r = await stor.get(`prog:${user.empId}`); if (!c && r?.value) setProg(JSON.parse(r.value)); } catch {}
+      try { const r = await stor.get(`testHist:${user.empId}`); if (!c && r?.value) setTestHist(JSON.parse(r.value)); } catch {}
+      if (!c) setLoaded(true);
+    })();
+    return () => { c = true; };
+  }, [user]);
+
+  const markLearned = async (cid) => {
+    const np = { ...prog, [cid]: { ...prog[cid], learned:true, learnedAt:new Date().toISOString() } };
+    setProg(np);
+    try { await stor.set(`prog:${user.empId}`, JSON.stringify(np)); } catch {}
+  };
+
+  const onTestDone = async (sc, pa) => {
+    const rec = { empId:user.empId, name:user.name, score:sc, totalQ:TEST_Q_COUNT, pct:Math.round(sc/TEST_Q_COUNT*100), passed:pa, date:new Date().toISOString() };
+    try { await stor.set(`res:${user.empId}:unified:${Date.now()}`, JSON.stringify({ ...rec, courseId:"unified", courseName:"総合確認テスト" })); } catch {}
+    const nh = [rec, ...testHist].slice(0, 20);
+    setTestHist(nh);
+    try { await stor.set(`testHist:${user.empId}`, JSON.stringify(nh)); } catch {}
+  };
+
+  if (!loaded) return <div style={{ textAlign:"center", padding:60, color:"#666" }}>読み込み中...</div>;
+  if (showTest) return <RandomTest user={user} onBack={() => setShowTest(false)} onDone={onTestDone} />;
+  if (selC) { const c = COURSES.find(x => x.id===selC); return <CourseView course={c} onBack={() => { markLearned(selC); setSelC(null); }} />; }
+
+  const learnedCount = Object.values(prog).filter(p => p.learned).length;
+  const learnPct = Math.round(learnedCount / COURSES.length * 100);
+  const lastTest = testHist[0];
+  const bestTest = testHist.length > 0 ? testHist.reduce((b, t) => t.score > b.score ? t : b, testHist[0]) : null;
+  const cats = [...new Set(COURSES.map(c => c.cat))];
+
+  return (
+    <div style={{ maxWidth:1100, margin:"0 auto", padding:"24px 20px" }}>
+      {/* ヘッダーバナー */}
+      <div style={{ background:"linear-gradient(135deg,#1a2d4a,#2E86C1)", borderRadius:14, padding:"24px 28px", color:"#fff", marginBottom:24 }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:16 }}>
+          <div>
+            <div style={{ fontSize:11, opacity:0.7 }}>受講者</div>
+            <div style={{ fontSize:18, fontWeight:700 }}>{user.empId} {user.name}</div>
+          </div>
+          <div style={{ display:"flex", gap:24, alignItems:"center" }}>
+            <div style={{ textAlign:"center" }}>
+              <div style={{ fontSize:24, fontWeight:700 }}>{learnedCount}/{COURSES.length}</div>
+              <div style={{ fontSize:10, opacity:0.7 }}>学習済みコース</div>
+            </div>
+            <div style={{ width:56, height:56, borderRadius:"50%", border:"4px solid rgba(255,255,255,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:700, fontSize:14 }}>{learnPct}%</div>
+          </div>
+        </div>
+      </div>
+
+      {/* テスト開始エリア */}
+      <div style={{ background:"#fff", borderRadius:14, border:"2px solid #2E86C1", padding:"24px 28px", marginBottom:24, display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:16 }}>
+        <div>
+          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
+            <span style={{ fontSize:24 }}>📝</span>
+            <h3 style={{ fontSize:16, fontWeight:700, color:"#1a2d4a", margin:0 }}>総合確認テスト</h3>
+          </div>
+          <div style={{ fontSize:12, color:"#666" }}>全{COURSES.length}コースからランダム{TEST_Q_COUNT}問（問題プール{TOTAL_POOL}問）• 毎回出題が変わります • 合格{PASS_RATE}%</div>
+          {lastTest && (
+            <div style={{ fontSize:11, color:"#888", marginTop:6 }}>
+              前回: {new Date(lastTest.date).toLocaleDateString("ja-JP")} —
+              <span style={{ color: lastTest.passed?"#27AE60":"#E74C3C", fontWeight:600 }}> {lastTest.score}/{TEST_Q_COUNT}（{lastTest.pct}%）{lastTest.passed?" 合格":" 不合格"}</span>
+              {bestTest && bestTest.score !== lastTest.score && <span style={{ marginLeft:8, color:"#2E86C1" }}>最高: {bestTest.score}/{TEST_Q_COUNT}</span>}
+            </div>
+          )}
+        </div>
+        <button onClick={() => setShowTest(true)}
+          style={{ padding:"14px 36px", borderRadius:10, border:"none", background:"linear-gradient(135deg,#1B4F72,#2E86C1)", color:"#fff", fontSize:15, fontWeight:700, cursor:"pointer", boxShadow:"0 4px 12px rgba(46,134,193,0.3)", whiteSpace:"nowrap" }}>
+          🚀 テスト開始
+        </button>
+      </div>
+
+      {/* テスト履歴 */}
+      {testHist.length > 0 && (
+        <div style={{ background:"#fff", borderRadius:12, border:"1px solid #e0e0e0", padding:"16px 20px", marginBottom:24 }}>
+          <div style={{ fontSize:13, fontWeight:700, color:"#1a2d4a", marginBottom:10 }}>📊 テスト履歴（直近{Math.min(testHist.length, 5)}回）</div>
+          <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+            {testHist.slice(0, 5).map((t, i) => (
+              <div key={i} style={{ padding:"8px 14px", borderRadius:8, fontSize:12, background: t.passed?"rgba(39,174,96,0.08)":"rgba(231,76,60,0.08)", border:"1px solid "+(t.passed?"#27AE60":"#E74C3C"), color: t.passed?"#155724":"#721c24" }}>
+                {new Date(t.date).toLocaleDateString("ja-JP")} — {t.score}/{TEST_Q_COUNT}（{t.pct}%）{t.passed?" ✓合格":" ✗不合格"}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* コース学習一覧 */}
+      <div style={{ fontSize:14, fontWeight:700, color:"#1a2d4a", marginBottom:12 }}>📖 学習教材</div>
+      <div style={{ fontSize:12, color:"#888", marginBottom:16 }}>テスト前に各コースの教材を読んで学習してください。</div>
+      {cats.map(cat => (
+        <div key={cat} style={{ marginBottom:20 }}>
+          <div style={{ fontSize:12, fontWeight:600, color:"#666", marginBottom:8, padding:"4px 0", borderBottom:"1px solid #e0e0e0" }}>{cat}</div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))", gap:12 }}>
+            {COURSES.filter(c => c.cat===cat).map(c => {
+              const learned = prog[c.id]?.learned;
+              return (
+                <div key={c.id} onClick={() => setSelC(c.id)}
+                  style={{ background:"#fff", borderRadius:12, padding:"16px 18px", cursor:"pointer", border:"1px solid #e0e0e0", transition:"transform .15s, box-shadow .15s", position:"relative", overflow:"hidden" }}
+                  onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 6px 16px rgba(0,0,0,0.1)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform=""; e.currentTarget.style.boxShadow=""; }}>
+                  <div style={{ position:"absolute", top:0, left:0, right:0, height:3, background:c.color }} />
+                  <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                    <span style={{ fontSize:24 }}>{c.icon}</span>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ fontSize:13, fontWeight:700, color:"#1a2d4a" }}>{c.title}</div>
+                      <div style={{ fontSize:11, color:"#888" }}>{c.secs.length}セクション • {c.quiz.length}問</div>
+                    </div>
+                    {learned && <div style={{ background:"#d4edda", color:"#155724", fontSize:10, fontWeight:700, padding:"3px 8px", borderRadius:6 }}>学習済</div>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ===== Chatbot（/api/chat 経由） ===== */
 function Chatbot() {
   const [msgs, setMsgs] = useState([{ role:"assistant", content:"こんにちは！物流部AIアシスタントです。\n手順書・緊急連絡先・KYT・法令など何でも聞いてください。" }]);
   const [input, setInput] = useState("");
@@ -489,12 +700,8 @@ function Chatbot() {
     setLoading(true);
     try {
       const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          system: KB,
-          messages: nm.filter(m => m.role !== "system").map(m => ({ role: m.role, content: m.content }))
-        })
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ system: KB, messages: nm.filter(m => m.role !== "system").map(m => ({ role: m.role, content: m.content })) })
       });
       const data = await res.json();
       const reply = data.content?.find(c => c.type === "text")?.text || "申し訳ありません。もう一度お試しください。";
@@ -517,8 +724,8 @@ function Chatbot() {
         </div>
         <div style={{ flex:1, overflowY:"auto", padding:"16px 20px", display:"flex", flexDirection:"column", gap:10 }}>
           {msgs.map((m, i) => (
-            <div key={i} style={{ display:"flex", justifyContent: m.role==="user" ? "flex-end" : "flex-start" }}>
-              <div style={{ maxWidth:"80%", padding:"10px 14px", borderRadius:12, fontSize:13, lineHeight:1.7, whiteSpace:"pre-line", background: m.role==="user" ? "#1B4F72" : "#f0f2f5", color: m.role==="user" ? "#fff" : "#333" }}>{m.content}</div>
+            <div key={i} style={{ display:"flex", justifyContent: m.role==="user"?"flex-end":"flex-start" }}>
+              <div style={{ maxWidth:"80%", padding:"10px 14px", borderRadius:12, fontSize:13, lineHeight:1.7, whiteSpace:"pre-line", background: m.role==="user"?"#1B4F72":"#f0f2f5", color: m.role==="user"?"#fff":"#333" }}>{m.content}</div>
             </div>
           ))}
           {loading && <div style={{ display:"flex" }}><div style={{ padding:"10px 14px", borderRadius:12, background:"#f0f2f5", fontSize:13, color:"#888" }}>考えています...</div></div>}
@@ -587,16 +794,14 @@ function AdminPanel() {
       </div>
 
       {view === "dashboard" && (
-        <div>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))", gap:12, marginBottom:20 }}>
-            {[["📊","総受験回数",results.length],["👤","受験者数",uniq.length+"名"],["✅","合格数",passC],["📈","合格率",results.length ? Math.round(passC/results.length*100)+"%" : "-%"]].map(([ic,l,v]) => (
-              <div key={l} style={{ ...S.card, padding:16 }}>
-                <div style={{ fontSize:20, marginBottom:4 }}>{ic}</div>
-                <div style={{ fontSize:11, color:"#888" }}>{l}</div>
-                <div style={{ fontSize:20, fontWeight:700, color:"#1a2d4a" }}>{v}</div>
-              </div>
-            ))}
-          </div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))", gap:12, marginBottom:20 }}>
+          {[["📊","総受験回数",results.length],["👤","受験者数",uniq.length+"名"],["✅","合格数",passC],["📈","合格率",results.length ? Math.round(passC/results.length*100)+"%" : "-%"]].map(([ic,l,v]) => (
+            <div key={l} style={{ ...S.card, padding:16 }}>
+              <div style={{ fontSize:20, marginBottom:4 }}>{ic}</div>
+              <div style={{ fontSize:11, color:"#888" }}>{l}</div>
+              <div style={{ fontSize:20, fontWeight:700, color:"#1a2d4a" }}>{v}</div>
+            </div>
+          ))}
         </div>
       )}
 
