@@ -943,22 +943,12 @@ function Chatbot() {
     setMsgs(nm);
     setLoading(true);
 
-    /* まずローカルKBで回答を試みる */
-    const local = localAnswer(q);
-    if (local) {
-      setMsgs((p) => [...p, { role: "assistant", content: local }]);
-      setLoading(false);
-      return;
-    }
-
-    /* ローカルKBにマッチしない場合はAPI呼び出し（利用可能な場合） */
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      /* Vercelサーバレス関数 /api/chat 経由でClaude APIを呼び出し */
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
           system: KB,
           messages: nm.filter((m) => m.role !== "system").slice(-10).map((m) => ({ role: m.role, content: m.content })),
         }),
@@ -967,11 +957,16 @@ function Chatbot() {
       const reply = data.content?.find((c) => c.type === "text")?.text || "申し訳ありません。もう一度お試しください。";
       setMsgs((p) => [...p, { role: "assistant", content: reply }]);
     } catch {
-      /* API失敗時のフォールバック */
-      setMsgs((p) => [
-        ...p,
-        { role: "assistant", content: "申し訳ありません。質問の内容に合致する情報が見つかりませんでした。\n\nよくある質問を下のボタンから選んでみてください。\n\n緊急時は配車担当（090-1213-9803）までお電話ください。" },
-      ]);
+      /* API失敗時はローカルKBでフォールバック */
+      const local = localAnswer(q);
+      if (local) {
+        setMsgs((p) => [...p, { role: "assistant", content: local }]);
+      } else {
+        setMsgs((p) => [
+          ...p,
+          { role: "assistant", content: "申し訳ありません。現在AIへの接続ができません。\n\nよくある質問を下のボタンから選んでみてください。\n\n緊急時は配車担当（090-1213-9803）までお電話ください。" },
+        ]);
+      }
     }
     setLoading(false);
   };
