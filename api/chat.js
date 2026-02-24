@@ -8,7 +8,6 @@ export default async function handler(req, res) {
 
   try {
     const { system, messages } = req.body;
-    // ★ Vercelに設定済みの変数名と一致させる
     const apiKey = process.env.VITE_ANTHROPIC_API_KEY;
 
     if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
@@ -21,7 +20,7 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 1024,
         system: system || '',
         messages: messages || []
